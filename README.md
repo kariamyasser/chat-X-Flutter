@@ -1,4 +1,4 @@
-# chatapp
+# Chat X
 
 A new Flutter project.
 
