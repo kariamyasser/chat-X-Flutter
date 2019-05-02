@@ -174,11 +174,21 @@ user.updateProfile(info);
          _state = 3;
         });
 
+
+         final snackbar = new SnackBar(
+                                  content: Text("Signed Up successfully please go back and Login ..."),
+                                  duration: Duration(seconds: 1),
+                                  backgroundColor: Colors
+                                      .red); // Theme.of(context).backgroundColor);
+                              Scaffold.of(context).showSnackBar(
+                                  snackbar); ////lw el show grandchild lel scaffold  (Scaffold => child .. =>FAB)
+
+/* 
      Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          HomePage(title: 'Home',userName: userName[0],))); 
+                                          HomePage(title: 'Home',userName: userName[0],)));  */
      
       }).catchError(( error) {
 

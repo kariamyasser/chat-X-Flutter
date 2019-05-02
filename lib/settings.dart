@@ -6,9 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
+
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class Settings extends StatelessWidget {
   @override
@@ -41,6 +46,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   String nickname = '';
   String aboutMe = '';
   String photoUrl = '';
+     
 
   bool isLoading = false;
   File avatarImageFile;
@@ -57,6 +63,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   void readLocal() async {
     prefs = await SharedPreferences.getInstance();
     id = prefs.getString('id') ?? '';
+FirebaseUser user = await _auth.currentUser();
+
+id = user.uid;
+
     nickname = prefs.getString('nickname') ?? '';
     aboutMe = prefs.getString('aboutMe') ?? '';
     photoUrl = prefs.getString('photoUrl') ?? '';
@@ -68,60 +78,59 @@ class SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
+
   Future getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
 
     if (image != null) {
+
       setState(() {
         avatarImageFile = image;
+
         isLoading = true;
+
+        uploadFile();
       });
+       
+
+        
     }
-    uploadFile();
+   
   }
 
+
+  
+
   Future uploadFile() async {
+
+    
+
     String fileName = id;
+
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+
     StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
-    StorageTaskSnapshot storageTaskSnapshot;
-    uploadTask.onComplete.then((value) {
-      if (value.error == null) {
-        storageTaskSnapshot = value;
-        storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-          photoUrl = downloadUrl;
-          Firestore.instance
-              .collection('users')
-              .document(id)
-              .updateData({'nickname': nickname, 'aboutMe': aboutMe, 'photoUrl': photoUrl}).then((data) async {
-            await prefs.setString('photoUrl', photoUrl);
-            setState(() {
-              isLoading = false;
-            });
-        
-          }).catchError((err) {
-            setState(() {
-              isLoading = false;
-            });
-           
-          });
-        }, onError: (err) {
-          setState(() {
-            isLoading = false;
-          });
-         
+
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+
+
+   storageTaskSnapshot.ref.getDownloadURL().then((value) {
+      if (value != null) {
+            print("in");
+
+              setState(() {
+                 photoUrl = value;
+          isLoading = false;
         });
+       
+       
       } else {
         setState(() {
           isLoading = false;
         });
-      
       }
-    }, onError: (err) {
-      setState(() {
-        isLoading = false;
-      });
-     
+  
     });
   }
 
@@ -133,10 +142,11 @@ class SettingsScreenState extends State<SettingsScreen> {
       isLoading = true;
     });
 
-    Firestore.instance
-        .collection('users')
-        .document(id)
-        .updateData({'nickname': nickname, 'aboutMe': aboutMe, 'photoUrl': photoUrl}).then((data) async {
+    Firestore.instance.collection('users').document(id).updateData({
+      'nickname': nickname,
+      'aboutMe': aboutMe,
+      'photoUrl': photoUrl
+    }).then((data) async {
       await prefs.setString('nickname', nickname);
       await prefs.setString('aboutMe', aboutMe);
       await prefs.setString('photoUrl', photoUrl);
@@ -144,14 +154,10 @@ class SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         isLoading = false;
       });
-
-
     }).catchError((err) {
       setState(() {
         isLoading = false;
       });
-
-     
     });
   }
 
@@ -174,7 +180,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     placeholder: (context, url) => Container(
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2.0,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.red),
                                           ),
                                           width: 90.0,
                                           height: 90.0,
@@ -185,7 +193,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     height: 90.0,
                                     fit: BoxFit.cover,
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(45.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(45.0)),
                                   clipBehavior: Clip.hardEdge,
                                 )
                               : Icon(
@@ -200,7 +209,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 height: 90.0,
                                 fit: BoxFit.cover,
                               ),
-                              borderRadius: BorderRadius.all(Radius.circular(45.0)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(45.0)),
                               clipBehavior: Clip.hardEdge,
                             ),
                       IconButton(
@@ -228,13 +238,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     child: Text(
                       'Nickname',
-                      style: TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                      style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey),
                     ),
                     margin: EdgeInsets.only(left: 10.0, bottom: 5.0, top: 10.0),
                   ),
                   Container(
                     child: Theme(
-                      data: Theme.of(context).copyWith(primaryColor: Colors.blueGrey),
+                      data: Theme.of(context)
+                          .copyWith(primaryColor: Colors.blueGrey),
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: 'choose a nickname',
@@ -255,13 +269,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     child: Text(
                       'About me',
-                      style: TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                      style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey),
                     ),
                     margin: EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0),
                   ),
                   Container(
                     child: Theme(
-                      data: Theme.of(context).copyWith(primaryColor: Colors.blueGrey),
+                      data: Theme.of(context)
+                          .copyWith(primaryColor: Colors.blueGrey),
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: 'Fun, like travel ...',
@@ -307,7 +325,8 @@ class SettingsScreenState extends State<SettingsScreen> {
           child: isLoading
               ? Container(
                   child: Center(
-                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
                   ),
                   color: Colors.white.withOpacity(0.8),
                 )

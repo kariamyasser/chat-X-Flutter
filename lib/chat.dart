@@ -141,6 +141,12 @@ class ChatScreenState extends State<ChatScreen> {
       setState(() {
         isLoading = false;
       });
+      final snackbar = new SnackBar(
+            content: Text("This file is not an image..."),
+            duration: Duration(seconds: 1),
+            backgroundColor: Colors.red);
+        Scaffold.of(context).showSnackBar(snackbar);
+        
      // Fluttertoast.showToast(msg: 'This file is not an image');
     });
   }
@@ -170,6 +176,7 @@ class ChatScreenState extends State<ChatScreen> {
       });
       listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
+    
    //   Fluttertoast.showToast(msg: 'Nothing to send');
     }
   }
