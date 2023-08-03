@@ -21,14 +21,14 @@ DESCRIPTION:
 1.	The application is built with flutter.
 2.	The application uses Firebase made by google.
 3.	The application is written in Dart language.
-4.	The application uses some dependencies you can find in the .yaml file like:
-•	  firebase_auth:  for the authentication by email.
-•	  cloud_firestore: for the instant messaging.
-•	  firebase_storage: for the photos online cloud.
-•	  firebase_core: for the firebase working itself.
-•	  google_sign_in: for the google authentication.
-•	  cached_network_image: for the upload of the pictures.
-•	  shared_preferences: for calling a snapshot of the firebase and updating data in it.
+4.	The application uses some dependencies you can find in the .yaml file like:\
+•	  firebase_auth:  for the authentication by email.\
+•	  cloud_firestore: for the instant messaging.\
+•	  firebase_storage: for the photos online cloud.\
+•	  firebase_core: for the firebase working itself.\
+•	  google_sign_in: for the google authentication.\
+•	  cached_network_image: for the upload of the pictures.\
+•	  shared_preferences: for calling a snapshot of the firebase and updating data in it.\
 •	  image_picker: for accessing mobile phone images.
 
 
